@@ -1,25 +1,37 @@
 import {observable, computed, action} from 'mobx'
-import {getProductList} from '../lib/product'
+import {getProductList, getCollections} from '../lib/product'
 
-const callProductList = async() =>{
+const callCollections = async() =>{
     try{
+        const result = await getCollections()
+        if(result.status === 200 || result.status === 201){
+            product.collections = result.data
+        } 
+    } catch (error){
+        console.log(error)
+    }
+}
 
-        const params ={
-            page : product.productListPage,
-            limit : product.productListLimit
+const callProductList = async (collection) => {
+    try {
+        
+        let params = {
+            page: product.productListPage,
+            limit: product.productListLimit
+        }
+
+        if (collection) {
+            params['collection'] = collection
         }
 
         const result = await getProductList(params)
-        if(result.status === 200 || result.status === 201){
+        if (result.status === 200 || result.status === 201) {
             product.productList = [...product.productList, ...result.data]
             product.productListPage = product.productListPage + 1
         }
-
-    }catch(error) {
-
+    } catch (error) {
+        
     }
-
-
 }
 
 
@@ -28,7 +40,7 @@ const product = observable({
     productListLimit : 2,
     productListPage : 1,
     productListTotalCount : 0,
-    callProductList : callProductList
+    callProductList : callProductList,
     
 })
 
